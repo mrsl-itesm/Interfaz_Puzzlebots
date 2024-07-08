@@ -6,7 +6,7 @@ Interfaz para configurar los Puzzlebots
 1. Instalar la imagen del Puzzlebot en la Jetson(Revisar guia para descargar la imagen)
 2.  Abrir una terminal y correr los siguientes comandos
 ```
-cd Desktop/MRSL/Puzzlebots/scripts
+cd Interfaz_Puzzlebots
 python3 mrsl_puzzlebot.py
 ```
 4.  Ingresar los siguientes datos
