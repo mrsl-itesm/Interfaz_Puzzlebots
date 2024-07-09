@@ -4,7 +4,13 @@ Interfaz para configurar los Puzzlebots
 # Pasos para configurar un nuevo Puzzlebot
 
 1. Instalar la imagen del Puzzlebot en la Jetson(Revisar guia para descargar la imagen)
-2.  Abrir una terminal y correr los siguientes comandos
+2. Conectar una antena en un puerto USB del Puzzlebot
+3. Abrir una terminal y correr los siguientes comandos
+## Primera Vez usando la interfaz
+```
+git clone https://github.com/Multi-Robot-Systems-Laboratory-ITESM/Interfaz_Puzzlebots.git
+```
+## Siempre
 ```
 cd Interfaz_Puzzlebots
 python3 mrsl_puzzlebot.py
