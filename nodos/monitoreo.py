@@ -18,7 +18,7 @@ class MonitoreoWebSocketBridge:
 
         for robot in self.puzzlebots:
             rospy.Subscriber(f"/vicon/{robot.name}/{robot.name}", TransformStamped, self.create_vicon_callback(robot))
-            rospy.Subscriber(f"/{robot.name}/ros_status", String, self.create_ros_callback(robot))
+            rospy.Subscriber(f"/{robot.name}/wl", String, self.create_ros_callback(robot))
             robot.last_vicon_message = rospy.Time.now()
             robot.last_ros_message = rospy.Time.now()
 
@@ -31,18 +31,18 @@ class MonitoreoWebSocketBridge:
         return lambda msg: setattr(robot, "last_vicon_message", rospy.Time.now())
     
     def check_vicon(self, robot):
-        if (rospy.Time.now() - self.last_vicon_message).to_sec() > 2:
+        if (rospy.Time.now() - self.last_vicon_message).to_sec() > 5:
             robot.vicon = "Apagado"
     
     def check_status(self, event):
         now = rospy.Time.now()
         for robot in self.puzzlebots:
             # Verificar estado de Vicon
-            robot.vicon = "Encendido" if (now - robot.last_vicon_message).to_sec() <= 2 else "Apagado"
+            robot.vicon = "Encendido" if (now - robot.last_vicon_message).to_sec() <= 5 else "Apagado"
 
             # Verificar estado de conexión y ROS
             if robot.ping():
-                robot.status = "Conectado" if (now - robot.last_ros_message).to_sec() <= 2 else "No ROS"
+                robot.status = "Conectado" if (now - robot.last_ros_message).to_sec() <= 15 else "No ROS"
             else:
                 robot.status = "Desconectado"
 

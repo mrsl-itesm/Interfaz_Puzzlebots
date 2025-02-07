@@ -5,7 +5,7 @@ class Puzzlebot:
     def __init__(self, name, ip):
         self.name = name
         self.ip = ip
-        self.vicon = "Off"
+        self.vicon = "Apagado"
         self.status = "Desconectado"
     
     def ping(self):
