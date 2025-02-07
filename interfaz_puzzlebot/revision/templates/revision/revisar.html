@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Revision{% endblock %}
+{% load static %}
+
+{% block header %}
+<h1>Revision</h1>
+{% endblock %}
+
+{% block content%}
+<link rel="stylesheet" href="{% static 'revision/css/revisar.css' %}">
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Direccion ip</th>
+            <th>Rosmaster ip</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="robots-table">
+        {% for puzzlebot in puzzlebots %}
+        <tr id="robot-{{ puzzlebot.nombre }}">
+            <td id="nombre-{{ puzzlebot.nombre }}">{{ puzzlebot.nombre }}</td>
+            <td id="ip-{{ puzzlebot.nombre }}">{{ puzzlebot.ip }}</td>
+            <td id="rosmasterip"> 10.15.232.53</td>
+            <td><button onclick="revisar('{{ puzzlebot }}')">Revisar</button></td>
+            <td><button onclick="reiniciar('{{ puzzlebot }}')">Reiniciar</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    const socket = new WebSocket('ws://127.0.0.1:8000/ws/puzzlebots/revision');
+
+    socket.onopen = function () {
+    console.log("Conexión WebSocket establecida.");
+    };
+
+    function revisar(puzzlebot) {
+        const data = {}
+        data['nombre'] = puzzlebot.name
+        data['ip'] = puzzlebot.ip
+        data['accion'] = "revisar"
+
+        socket.send(JSON.stringify(data));
+
+    }
+
+    function reiniciar(puzzlebot) {
+        const data = {}
+        data['nombre'] = puzzlebot.name
+        data['ip'] = puzzlebot.ip
+        data['accion'] = "reiniciar"
+
+        socket.send(JSON.stringify(data));
+
+    }
+</script>
+{% endblock %}

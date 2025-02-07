@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Puzzlebot{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'inicio/css/inicio.css' %}">
+{% endblock %}
+
+{% block header %}
+<h1>Interfaz Puzzlebots MRSL</h1>
+{% endblock %}
+
+{% block content %}
+<div class="center-image">
+    <img src="{% static 'inicio/img/PuzzleBot.png' %}" alt="Logo">
+</div>
+<h2>Funcionalidades</h2>
+<p>Monitoreo: Checar el estado de los Puzzlebots en tiempo real</p>
+<p>Configuración: Agregar un nuevo Puzzlebot a la base de datos</p>
+<p>Editar: Cambiar datos de Puzzlebots existentes</p>
+<p>Revisar: Checar datos de los Puzzlebots y corregir errores</p>
+<p>Proximamente...</p>
+{% endblock %}

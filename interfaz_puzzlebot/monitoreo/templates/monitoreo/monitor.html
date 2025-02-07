@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Monitoreo{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'monitoreo/css/monitor.css' %}">
+{% endblock %}
+
+{% block header %}
+<h1>Monitoreo</h1>
+{% endblock %}
+
+{% block content%}
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Vicon</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="robots-table">
+        {% for puzzlebot in puzzlebots %}
+        <tr id="robot-{{ puzzlebot.nombre }}">
+            <td>{{ puzzlebot.nombre }}</td>
+            <td id="vicon-{{ puzzlebot.nombre }}">{{ puzzlebot.vicon }}</td>
+            <td id="estado-{{ puzzlebot.nombre }}">{{ puzzlebot.estatus }}</td>
+            <td><button onclick="guardarDatos('{{ puzzlebot.nombre }}')">Reiniciar</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    // URL del WebSocket (ajusta el puerto y protocolo según tu configuración)
+    const socket = new WebSocket('ws://127.0.0.1:8000/ws/puzzlebots/monitoreo');
+
+    socket.onopen = function () {
+    console.log("Conexión WebSocket establecida.");
+    };
+
+    // Función para manejar mensajes entrantes del WebSocket
+    socket.onmessage = function(event) {
+        // console.log("Mensaje recibido (raw):", event.data);
+        const data = JSON.parse(event.data);
+
+        console.log("Datos recibidos:", data); // Verifica los datos que llegan
+
+        if (data.status === 'success') {
+            const nombre = data.nombre;
+            const vicon = data.vicon;
+            const estado = data.estado;
+
+            // Verifica que los datos estén presentes antes de actualizar
+            if (nombre && vicon && estado) {
+                console.log(`Actualizando el estado de ${nombre}...`);
+
+                // Actualiza los valores de la tabla sin necesidad de recargar la página
+                const viconElement = document.getElementById(`vicon-${nombre}`);
+                const estadoElement = document.getElementById(`estado-${nombre}`);
+
+                if (viconElement && estadoElement) {
+                    viconElement.innerText = vicon;
+                    estadoElement.innerText = estado;
+                } else {
+                    console.log(`No se encontró la fila para ${nombre}`);
+                }
+            }
+        } else {
+            console.error('Error:', data.message);
+        }
+    };
+
+    // Maneja errores de conexión
+    socket.onerror = function(error) {
+        console.error('WebSocket Error:', error);
+    };
+
+    // Maneja cierre de conexión
+    socket.onclose = function() {
+        console.log('WebSocket cerrado.');
+    };
+</script>
+{% endblock %}
+

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Monitoreo de Puzzlebots MRSL{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'inicio/css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        {% block header %}
+        <h1>Monitoreo de Puzzlebots MRSL</h1>
+        {% endblock %}
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/monitoreo/">Monitoreo</a></li>
+            <li><a href="/configuracion/">Configurar Robot</a></li>
+            <li><a href="/edicion/">Editar Robot</a></li>
+            <li><a href="/revision/">Revisar Robot</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% block content %}
+        <!-- Aquí se insertará el contenido específico de cada página -->
+        {% endblock %}
+    </main>
+</body>
+</html>
+

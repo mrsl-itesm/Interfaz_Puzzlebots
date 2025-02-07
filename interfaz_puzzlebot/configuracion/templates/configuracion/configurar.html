@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Configuracion{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'configuracion/css/configurar.css' %}">
+{% endblock %}
+
+{% block header %}
+<h1>Configuracion</h1>
+{% endblock %}
+
+{% block content%}
+<h1>Agregar Puzzlebot</h1>
+    <form id="form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Agregar</button>
+    </form>
+
+<script>
+    const socket = new WebSocket('ws://127.0.0.1:8000/ws/puzzlebots/configuracion');
+
+    socket.onopen = function () {
+    console.log("Conexión WebSocket establecida.");
+    };
+
+    document.getElementById('form').addEventListener('submit', function (event) {
+        event.preventDefault(); // Evita el comportamiento por defecto de recargar la página
+
+        const formData = new FormData(this);
+        const data = {};
+
+        // Convierte los datos del formulario en un objeto JSON
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        data['app'] = 'configuracion';
+
+        // Envía los datos al servidor a través del WebSocket
+        socket.send(JSON.stringify(data));
+    });
+</script>
+{% endblock %}

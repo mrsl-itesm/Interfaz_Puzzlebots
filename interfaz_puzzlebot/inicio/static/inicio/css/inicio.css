@@ -1,0 +1,63 @@
+/* Estilo general */
+body {
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+    text-align: center;
+}
+
+/* Estilo del título principal */
+h1 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.center-image {
+    text-align: center; /* Centra horizontalmente el contenido dentro del contenedor */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-image img {
+    height: 300px; /* Ajusta la altura de la imagen */
+}
+
+/* Subtítulo */
+h2 {
+    font-size: 24px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 18px;
+    padding: 12px 20px;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    margin: 10px 0;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+p:hover {
+    transform: scale(1.05);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Colores específicos para cada funcionalidad */
+p:nth-of-type(1) { background-color: #3498db; } /* Azul - Monitoreo */
+p:nth-of-type(2) { background-color: #2ecc71; } /* Verde - Configuración */
+p:nth-of-type(3) { background-color: #f39c12; } /* Naranja - Editar */
+p:nth-of-type(4) { background-color: #e74c3c; } /* Rojo - Revisar */
+p:nth-of-type(5) { 
+    background-color: #7f8c8d; /* Gris - Próximamente */
+    font-style: italic;
+}
