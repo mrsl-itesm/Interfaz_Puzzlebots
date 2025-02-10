@@ -24,10 +24,6 @@ class RevisionWebSocketBridge:
             ssh_client.connect(hostname=host, username=username, password=password)
             rospy.loginfo("Conectado")
 
-            #sftp = ssh_client.open_sftp()
-            #sftp.put(<Source>, destination_i_CAN_write_to)
-            #sftp.close()
-
             #now move the file to the sudo required area!
             stdin, stdout, stderr = ssh_client.exec_command(comando)
             stdin.write("Puzzlebot72\n")
@@ -39,6 +35,44 @@ class RevisionWebSocketBridge:
         finally:
             # Cierra la conexión SSH
             ssh_client.close()
+    
+    def check_and_update_remote_file(self, host, username, password, file_path, search_key, expected_value):
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            # Conecta al host remoto
+            ssh_client.connect(hostname=host, username=username, password=password)
+            rospy.loginfo("Conectado")
+            command = f'grep "^{search_key}=" {file_path}'
+            stdin, stdout, stderr = ssh_client.exec_command(command)
+            output = stdout.read().decode().strip()
+            
+            if not output:
+                ssh_client.close()
+                return f"La clave '{search_key}' no fue encontrada en {file_path}."
+            
+            # Extraer el valor después del '='
+            line_parts = output.split('=')
+            if len(line_parts) < 2:
+                ssh_client.close()
+                return f"Formato incorrecto en la línea encontrada: {output}"
+            
+            actual_value = line_parts[1].strip()
+            
+            # Comparar valores y actualizar si es necesario
+            if actual_value != expected_value:
+                update_command = f"sed -i 's/{search_key}={actual_value}/{search_key}={expected_value}/' {file_path}"
+                ssh_client.exec_command(update_command)
+                ssh_client.close()
+                return f"Valor actualizado: {search_key}={expected_value}"
+            else:
+                ssh_client.close()
+                return f"El valor ya es el esperado: {actual_value}"
+        
+        except Exception as e:
+            return f"Error: {str(e)}"
+
  
     
     async def websocket_handler(self):
@@ -55,7 +89,8 @@ class RevisionWebSocketBridge:
                             nombre = data["nombre"]
                             print(ip)
                             if data["accion"] == "revisar":
-                                pass
+                                rospy.loginfo(f"Revisando datos del Puzzlebot")
+                                self.check_and_update_remote_file(ip, 'puzzlebot', 'Puzzlebot72', '', 'ROS_IP', ip)
                             elif data["accion"] == "reiniciar":
                                 rospy.loginfo(f"Reiniciando {nombre}")
                                 comando = 'sudo -S systemctl restart puzzlebot.service'

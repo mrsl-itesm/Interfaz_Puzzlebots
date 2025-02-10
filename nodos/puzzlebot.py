@@ -1,5 +1,6 @@
 import subprocess
 import platform
+import socket
 
 class Puzzlebot:
     def __init__(self, name, ip):
@@ -8,13 +9,12 @@ class Puzzlebot:
         self.vicon = "Apagado"
         self.status = "Desconectado"
     
-    def ping(self):
+    def fast_ping(self, timeout=0.2):
         host = self.ip
-        # Determinar el comando según el sistema operativo
-        param = "-n" if platform.system().lower() == "windows" else "-c"
-        comando = ["ping", param, "1", host]
+        port = 22  # Puedes cambiarlo según tu robot (Ej: 80 para HTTP)
+
         try:
-            subprocess.run(comando, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-            return True
-        except subprocess.CalledProcessError:
+            with socket.create_connection((host, port), timeout=timeout):
+                return True
+        except (socket.timeout, OSError):
             return False

@@ -18,7 +18,6 @@
             <th>Nombre</th>
             <th>Vicon</th>
             <th>Estado</th>
-            <th></th>
         </tr>
     </thead>
     <tbody id="robots-table">
@@ -27,7 +26,6 @@
             <td>{{ puzzlebot.nombre }}</td>
             <td id="vicon-{{ puzzlebot.nombre }}">{{ puzzlebot.vicon }}</td>
             <td id="estado-{{ puzzlebot.nombre }}">{{ puzzlebot.estatus }}</td>
-            <td><button onclick="guardarDatos('{{ puzzlebot.nombre }}')">Reiniciar</button></td>
         </tr>
         {% endfor %}
     </tbody>
