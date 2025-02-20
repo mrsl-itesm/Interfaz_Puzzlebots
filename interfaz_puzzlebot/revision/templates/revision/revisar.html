@@ -25,8 +25,8 @@
             <td id="nombre-{{ puzzlebot.nombre }}">{{ puzzlebot.nombre }}</td>
             <td id="ip-{{ puzzlebot.nombre }}">{{ puzzlebot.ip }}</td>
             <td id="rosmasterip"> 10.15.232.53</td>
-            <td><button onclick="revisar('{{ puzzlebot }}')">Revisar</button></td>
-            <td><button onclick="reiniciar('{{ puzzlebot }}')">Reiniciar</button></td>
+            <td><button onclick="revisar('{{ puzzlebot.nombre }}')">Revisar</button></td>
+            <td><button onclick="reiniciar('{{ puzzlebot.nombre }}')">Reiniciar</button></td>
         </tr>
         {% endfor %}
     </tbody>
@@ -39,20 +39,23 @@
     console.log("Conexión WebSocket establecida.");
     };
 
-    function revisar(puzzlebot) {
+    function revisar(nombre) {
+        console.log("Revisando",nombre)
         const data = {}
-        data['nombre'] = puzzlebot.name
-        data['ip'] = puzzlebot.ip
+        data['nombre'] = nombre
+        data['ip'] = document.getElementById(`ip-${nombre}`).textContent.trim();
+        data['rosmasterip'] = document.getElementById(`rosmasterip`).textContent.trim();
         data['accion'] = "revisar"
 
         socket.send(JSON.stringify(data));
 
     }
 
-    function reiniciar(puzzlebot) {
+    function reiniciar(nombre) {
+        console.log("Reiniciando",nombre)
         const data = {}
-        data['nombre'] = puzzlebot.name
-        data['ip'] = puzzlebot.ip
+        data['nombre'] = nombre
+        data['ip'] = document.getElementById(`ip-${nombre}`).textContent.trim();
         data['accion'] = "reiniciar"
 
         socket.send(JSON.stringify(data));
