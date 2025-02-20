@@ -1,6 +1,7 @@
 import subprocess
 import platform
 import socket
+import os
 
 class Puzzlebot:
     def __init__(self, name, ip):

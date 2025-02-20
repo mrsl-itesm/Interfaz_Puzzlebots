@@ -5,7 +5,7 @@ import asyncio
 import websockets
 import json
 from geometry_msgs.msg import TransformStamped
-from std_msgs.msg import String
+from std_msgs.msg import Float32
 from puzzlebot import Puzzlebot
 
 
@@ -17,13 +17,14 @@ class MonitoreoWebSocketBridge:
 
         for robot in self.puzzlebots:
             rospy.Subscriber(f"/vicon/{robot.name}/{robot.name}", TransformStamped, self.create_vicon_callback(robot))
-            rospy.Subscriber(f"/{robot.name}/wl", String, self.create_ros_callback(robot))
+            rospy.Subscriber(f"/{robot.name}/wl", Float32, self.create_ros_callback(robot))
             robot.last_vicon_message = rospy.Time.now()
             robot.last_ros_message = rospy.Time.now()
 
         rospy.Timer(rospy.Duration(1), self.check_status)
     
     def create_ros_callback(self, robot):
+        rospy.loginfo("Mensaje de ROS recibido")
         return lambda msg: setattr(robot, "last_ros_message", rospy.Time.now())
 
     def create_vicon_callback(self, robot):
@@ -37,7 +38,7 @@ class MonitoreoWebSocketBridge:
 
             # Verificar estado de conexión y ROS
             if robot.fast_ping():
-                robot.status = "Conectado" if (now - robot.last_ros_message).to_sec() <= 2 else "No ROS"
+                robot.status = "Conectado" if (now - robot.last_ros_message).to_sec() <= 5 else "No ROS"
             else:
                 robot.status = "Desconectado"
             rospy.sleep(0.1)
@@ -62,7 +63,7 @@ class MonitoreoWebSocketBridge:
 
 def main():
     ws_uri = "ws://127.0.0.1:8000/ws/puzzlebots/monitoreo"
-    with open("puzzlebots.json", "r") as file:
+    with open("nodos/puzzlebots.json", "r") as file:
         puzzlebots = json.load(file)
 
     monitoreo = MonitoreoWebSocketBridge(ws_uri, list(puzzlebots.keys()), list(puzzlebots.values()))
