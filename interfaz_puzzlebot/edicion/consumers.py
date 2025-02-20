@@ -2,11 +2,11 @@ from channels.generic.websocket import JsonWebsocketConsumer
 from monitoreo.models import Puzzlebot
 from asgiref.sync import async_to_sync
 
-class RevisionConsumer(JsonWebsocketConsumer):
+class EdicionConsumer(JsonWebsocketConsumer):
     def connect(self):
         # Asignar al cliente a un grupo
         self.path = self.scope["path"]
-        self.group_name = "revision_group"
+        self.group_name = "edicion_group"
         async_to_sync(self.channel_layer.group_add)(
             self.group_name,
             self.channel_name
@@ -20,14 +20,13 @@ class RevisionConsumer(JsonWebsocketConsumer):
         )
     
     def receive_json(self, content, **kwargs):
-        if self.path == "/ws/puzzlebots/revision":
-            self.handle_revision(content)
-
-    def handle_revision(self, content):
+        if self.path == "/ws/puzzlebots/edicion":
+            self.handle_edicion(content)
+            
+    def handle_edicion(self, content):
         accion = content.get('accion')
         name = content.get('nombre')
         ip = content.get('ip')
-        rosmaster = content.get("rosmasterip") 
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -35,7 +34,6 @@ class RevisionConsumer(JsonWebsocketConsumer):
                 "accion": accion,
                 "nombre": name,
                 "ip": ip,
-                "rosmasterip": rosmaster  
             }
         )
     
@@ -45,5 +43,4 @@ class RevisionConsumer(JsonWebsocketConsumer):
             "accion": event.get("accion"),
             "nombre": event.get("nombre"),
             "ip": event.get("ip"),
-            "rosmasterip": event.get("rosmasterip")
         })
