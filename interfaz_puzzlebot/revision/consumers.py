@@ -27,7 +27,8 @@ class RevisionConsumer(JsonWebsocketConsumer):
         accion = content.get('accion')
         name = content.get('nombre')
         ip = content.get('ip')
-        rosmaster = content.get("rosmasterip") 
+        rosmaster = content.get("rosmasterip")
+        message = content.get("message") 
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -35,7 +36,8 @@ class RevisionConsumer(JsonWebsocketConsumer):
                 "accion": accion,
                 "nombre": name,
                 "ip": ip,
-                "rosmasterip": rosmaster  
+                "rosmasterip": rosmaster,
+                "message": message  
             }
         )
     
@@ -45,5 +47,6 @@ class RevisionConsumer(JsonWebsocketConsumer):
             "accion": event.get("accion"),
             "nombre": event.get("nombre"),
             "ip": event.get("ip"),
-            "rosmasterip": event.get("rosmasterip")
+            "rosmasterip": event.get("rosmasterip"),
+            "message": event.get("message"),
         })

@@ -36,8 +36,7 @@ class PuzzlebotConsumer(JsonWebsocketConsumer):
         elif self.path == "/ws/puzzlebots/edicion":
             pass
         elif self.path == "/ws/puzzlebots/revision":
-            pass
-
+            self.handle_revision(content)
     
     def handle_monitoreo(self, content):
         for element in content:
