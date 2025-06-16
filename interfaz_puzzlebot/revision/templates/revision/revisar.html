@@ -31,6 +31,10 @@
         {% endfor %}
     </tbody>
 </table>
+<div class="overlay" id="fondo" onclick="cerrarPopup()"></div>
+<div class="popup" id="popup">
+    <p id="popupMessage"></p>
+</div>
 
 <script>
     const socket = new WebSocket('ws://127.0.0.1:8000/ws/puzzlebots/revision');
@@ -38,6 +42,23 @@
     socket.onopen = function () {
     console.log("Conexión WebSocket establecida.");
     };
+
+    socket.onmessage = function () {
+        const data = JSON.parse(event.data);
+        console.log(data)
+        const message = data.message;
+        mostrarPopup(message);
+    }
+    function mostrarPopup(text) {
+        document.getElementById("popup").style.display = "block";
+        document.getElementById("fondo").style.display = "block";
+        document.getElementById("popupMessage").textContent = text;
+    }
+
+    function cerrarPopup() {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("fondo").style.display = "none";
+    }
 
     function revisar(nombre) {
         console.log("Revisando",nombre)

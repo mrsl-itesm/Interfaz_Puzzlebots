@@ -32,9 +32,10 @@ class RevisionWebSocketBridge:
 
         except Exception as e:
             rospy.logerr(f"Error al conectar o ejecutar el comando: {e}")
-        finally:
-            # Cierra la conexión SSH
-            ssh_client.close()
+            return(str(e))
+        # Cierra la conexión SSH
+        ssh_client.close()
+        return(f"Reiniciado con exito")
     
     def check_and_update_remote_file(self, host, username, password, file_path, ips):
         ssh_client = paramiko.SSHClient()
@@ -69,6 +70,7 @@ class RevisionWebSocketBridge:
                     print(f"El valor ya es el esperado: {actual_value}")
             
             ssh_client.close()
+            return("Puzzlebot revisado y corregido")
         
         except Exception as e:
             return f"Error: {str(e)}"
@@ -93,12 +95,19 @@ class RevisionWebSocketBridge:
                                     "ROS_MASTER_URI": "http://"+rosmaster+":11311"
                                 }
                                 rospy.loginfo(f"Revisando datos del Puzzlebot")
-                                self.check_and_update_remote_file(ip, 'puzzlebot', 'Puzzlebot72', 'catkin_ws/src/puzzlebot_autostart/scripts/puzzlebot_start.sh', ips)                           
+                                msg = self.check_and_update_remote_file(ip, 'puzzlebot', 'Puzzlebot72', 'catkin_ws/src/puzzlebot_autostart/scripts/puzzlebot_start.sh', ips)      
+                                rospy.loginfo(msg)
+                                data = {"message": msg}
+                                await ws.send(json.dumps(data))
+                                rospy.loginfo(f"Datos enviados: {data}")                     
                             elif data["accion"] == "reiniciar":
                                 rospy.loginfo(f"Reiniciando {nombre}")
                                 comando = 'sudo -S systemctl restart puzzlebot.service'
-                                self.ejecutar_comando_ssh(ip, 'puzzlebot', 'Puzzlebot72', comando)
-                                rospy.loginfo(f"{nombre} reiniciado")
+                                msg = self.ejecutar_comando_ssh(ip, 'puzzlebot', 'Puzzlebot72', comando)
+                                rospy.loginfo(msg)
+                                data = {"message": msg}
+                                await ws.send(json.dumps(data))
+                                rospy.loginfo(f"Datos enviados: {data}")
 
                         except:
                             pass
