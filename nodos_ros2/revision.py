@@ -2,21 +2,6 @@
 #!/usr/bin/env python3
 
 """ 
-Acts as the central ROS-2 integrated controller that:
-    1. Receives robot commands from a WebSocket server.
-    2. Processes those commands in real-time: Reviews or restarts robot.
-    3. Interfaces with ROS2 (indirectly via a ROS2 node and rclpy).
-    4. Acts as a link between the network and ROS system:
-        - WebSocket: Receives instructions
-        - SSH: Sends commands to Puzzlebots
-        - ROS2 Node: Manages lifecycle, logging, and potential integration
-    The controller enables a centralized, remote control of Puzzlebots
-    Handles configuration and rebooting without direct physical access
-
-    configuracion.py is the brain of the system:
-        - Listens for external commands via WebSocket.
-        - Performs actions on Puzzlebots via SSH.
-        - Uses ROS2 for lifecycle and logging.
 """
 
 import rclpy # ROS2 Python client library

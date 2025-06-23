@@ -1,111 +1,221 @@
-# Overview
-The system is a ROS2-based, WebSocket-enabled interface that allows a centralized management of Puzzlebots. It performs:
-- Configuration of individual robots (Wi-Fi, launch files, environment variables).
-- Remote updating or rebooting via SSH.
-- Monitoring robot status (connectivity, sensor activity).
-- All commands come from a central Web Interface via WebSocket.
+# 2. Pasos para configurar un nuevo Puzzlebot
 
-# Main Components
-configuracion.py
-    Handles robot setup (Wi-Fi, IP, environment variables, startup configuration).
-revision.py
-    Reviews or reboots robots via SSH based on WebSocket commands.
-monitoreo.py
-    Monitors robot status, publishes to WebSocket(connectivity, sensors)
-Web Interface (dashboard)
-    Sends commands (via WebSocket), receives Puzzlebot status.
-puzzlebots.json
-    Local JSON file tracking Puzzlebot names and IPs.
+---
 
-# Workings
-1. User connects Puzzlebot to interface
-- Interface sends IP/name to configuracion.py.
-- Puzzlebot gets IP, Wi-Fi, startup config updated.
-2. User asks to "check" or "restart" a  Puzzlebot
-- Interface sends command to revision.py.
-- Node logs in via SSH, updates config or restarts robot.
-3. Interface dashboard auto-refreshes
-- monitoreo.py streams Puzzlebot status to WebSocket.
-- Dashboard allows live status of all connected Puzzlebots.
+1. Instalar la **imagen OS de Ubuntu 22.04** para el Puzzlebot en la Jetson Nano (Revisar la presentación PPT de **Manchester Robotics Ltd.** para descargar la imagen. Esta guía se encuentra dentro de la carpeta de `configuracion_puzzlebot`).
 
-# Interfaz_Puzzlebots
-Interfaz para configurar los Puzzlebots
+2. Flashear la imagen OS de Ubuntu 22.04 para el Puzzlebot en la Jetson Nano mediante la herramienta multi-plataforma [Balena Etcher](https://etcher.balena.io/).
 
-# Pasos para configurar un nuevo Puzzlebot
+2. Conectar y habilitar el funcionamiento de una antena **TP-Link AC1300** para la conexión inalámbrica en un puerto USB de la Jetson Nano del Puzzlebot mediante la instalación de un driver requeridos.
 
-1. Instalar la imagen del Puzzlebot en la Jetson(Revisar guia para descargar la imagen).
+## 1. Conexión de la interfaz TP-Link AC1300
 
-2. Conectar una antena en un puerto USB del Puzzlebot.
+Para instalar los controladores del adaptador inalámbrico `TP-Link T3U Plus AC1300`:
 
-### TP-Link AC1300 Interface Connection
+- Conecte el dispositivo y asegúrese de que se detecte mediante ```lsub```.
+Para el T3U Plus, el ID es 2357:0138. Consulte las instrucciones de [RTL88x2BU-Linux-Driver](https://github.com/RinCat/RTL88x2BU-Linux-Driver) y ejecute como sudo:
 
-To install the drivers for the TP-Link T3U Plus AC1300 Wireless Adapter:
-
-- Plug in the device and ensure it is detected via ```lsub```.
-For the T3U Plus, the ID is 2357:0138.
-Consult instructions from [RTL88x2BU-Linux-Driver](https://github.com/RinCat/RTL88x2BU-Linux-Driver), run as sudo:
-```
+```bash
 git clone "https://github.com/RinCat/RTL88x2BU-Linux-Driver.git" /usr/src/rtl88x2bu-git
 sed -i 's/PACKAGE_VERSION="@PKGVER@"/PACKAGE_VERSION="git"/g' /usr/src/rtl88x2bu-git/dkms.conf
 dkms add -m rtl88x2bu -v git
 dkms autoinstall
 ```
 
-Reboot.
+- Reinicie la máquina local en la que realizo los pasos anteriores.
 
-Also consult this [WiFi Adapter TPLink AC1300](https://forums.developer.nvidia.com/t/wifi-adapter-tplink-ac1300/243480) forum discussion: 
+- Consulta también esta discusión del foro [Adaptador WiFi TPLink AC1300](https://forums.developer.nvidia.com/t/wifi-adapter-tplink-ac1300/243480):
 
-Connect the Puzzlebot's Jetson Nano to your external PC via micro-USB to create a network interface on both devices. The IP of the interface that connects via USB to the Nano will likely be 192.168.55.x (e.g., 192.168.55.1). To determine the address, view the Connection Information page displayed in the Jetson Nano.
+- Conecta la Jetson Nano de Puzzlebot a tu PC externa mediante micro-USB para crear una interfaz de red en ambos dispositivos. La IP de la interfaz que se conecta por USB al Nano probablemente sea 192.168.55.x (p. ej., 192.168.55.1). Para determinar la dirección, consulta la página de información de conexión del Jetson Nano.
 
-Then, in your external PC compress the rtl88x2bu directory into a zip file and copy the file to the Jetson Nano like this:
+- Luego, en tu PC externa, comprime el directorio rtl88x2bu en un archivo zip y cópialo al Jetson Nano de la siguiente manera:
 
-
-```scp rtl88x2bu.zip username@192.168.55.1:/home/username```
-
-Replace username with your Jetson Nano's username such as 'puzzlebot'. When using the micro USB interface, the Jetson will locally always have the address '192.168.55.1', so use it for this step.
-
-After that, change directory to the folder and launch the following commands. The first one takes time and will display a lot of warnings:
-
+```bash
+scp rtl88x2bu.zip nombredeusuario@192.168.55.1:/home/nombredeusuario
 ```
+
+- Reemplaza el nombre de usuario por el nombre de usuario de tu Jetson Nano, como 'puzzlebot'. Al usar la interfaz micro USB, el Jetson siempre tendrá localmente la dirección '192.168.55.1', ​​así que úsala para este paso.
+
+- Después, dentro de la Jetson Nano cambia de directorio a la carpeta y ejecuta los siguientes comandos. El primero tarda un tiempo y mostrará muchas advertencias:
+
+```bash
 make
 sudo make install
 sudo modprobe 88x2bu
 sudo reboot
 ```
 
-Connect your TP-Link AC1300 device to a USB port and connect to your desired Wi-Fi connection.
+- Conecta tu dispositivo TP-Link AC1300 a un puerto USB y conéctate a la conexión Wi-Fi deseada. En este caso, será la red `Lab_Robotica`.
 
-3. Abrir una terminal y correr los siguientes comandos.
+## 2. Auto-arranque de agente de micro-ROS en Jetson Nano
 
-## Primera Vez usando la interfaz
+Para iniciar automáticamente el agente Micro-ROS en Boot para la Jetson Nano del Puzzlebot, sigue los siguientes pasos:
+
+### 1. Crea el script de lanzamiento
+
+1. Crea `~/start_micro_ros_agent.sh`:
+
+```bash
+#!/bin/bash
+source /opt/ros/$ROS_DISTRO/setup.bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch micro_ros_agent_launch.py
 ```
-git clone https://github.com/Multi-Robot-Systems-Laboratory-ITESM/Interfaz_Puzzlebots.git
+
+2. Házlo ejecutable:
+
+```bash
+chmod +x ~/start_micro_ros_agent.sh
 ```
-## Siempre
+
+3. Crea un servicio systemd
+
+Crea `/etc/systemd/system/micro_ros_agent.service`:
+
+```ini
+[Unit]
+Description=Micro-ROS Agent Service
+After=network.target
+
+[Service]
+Type=simple
+User=username
+ExecStart=/home/username/start_micro_ros_agent.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
 ```
-cd Interfaz_Puzzlebots
-python3 mrsl_puzzlebot.py
+
+Reemplaza `username` por el nombre de usuario (e.g., `puzzlebot`).
+
+4. Habilita el servicio
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable micro_ros_agent.service
+sudo systemctl start micro_ros_agent.service
 ```
-4.  Ingresar los siguientes datos
-    1. Nombre que se le quiere dar al Puzzlebot
-    2. Direccion IP que se le quiere asignar
-    3. Red a la que se quiere conectar
-    4. Direccion IP del master(Dispositivo que correra el roscore)
-5. Dar click en el boton Configurar Puzzlebot
-6. Una vez terminado el Puzzlebot estara listo para usarse
 
-En caso de fallas o dudas contactar a un miembro del laboratorio
+5. Verifica
 
-## Correr Interfaz desde Computadora Principal de MRSL
+```bash
+sudo systemctl status micro_ros_agent.service
+ros2 topic list
+```
 
-Pull the ROS2 Humble Docker image
+# 3. Pasos para usar un nuevo Puzzlebot con ROS2 Humble
 
-``` docker pull osrf/ros:humble-desktop ```
+---
 
-Run the Docker container
+## 1. Pasos para hacer que el Puzzlebot realice un gradiente circular mediante control 
 
-``` docker run -it --rm --net=host osrf/ros:humble-desktop ```
+Para este experimento en el que se desea que un nuevo Puzzlebot vaya hacia una condición inicial, complete por un número definido de iteraciones una trayectoria sobre una línea circular de radio definido y se reubique en esta aunque se encuentre fuera o dentro del círculo, sigue los siguientes pasos:
 
--it: Runs the container in interactive mode, allowing you to interact with the shell.
---net=host: Uses the host network, which is necessary for ROS2 communication.
+### 1. Adición de nuevo Puzzlebot a VICON
 
+El sistema **VICON** del **Laboratorio de Sistemas Multirobóticos** permite la captura de movimiento de alta precisión. Es un componente clave en el funcionamiento de este experimento, ya que provee estimaciones de la transformada de un marco de coordenadas principal al marco de coordenadas del Puzzlebot.
+
+VICON requiere de un puente para su funcionamiento con ROS2. La instalación del siguiente puente [ros2-vicon-bridge](https://github.com/dasc-lab/ros2-vicon-bridge), inspirado en el [original](https://github.com/ethz-asl/vicon_bridge) es necesario. 
+
+A continuación se provee la solución a un problema encontrado a la hora de realizar los pasos indicados por el manual de instalación con la instalación del paquete `diagnostic_updater` en caso de que te encuentres con lo mismo:
+
+1. Actualiza tu lista de paquetes para tener la información más actualizada sobre los paquetes disponibles
+
+```bash
+sudo apt-get update
+```
+
+2. Reintenta la instalación
+
+```bash
+sudo apt-get install ros-${ROS_DISTRO}-diagnostic-updater
+```
+
+Si esto no funciona, realiza el siguiente paso:
+
+3. Realiza la instalación manual del archivo .deb
+
+```bash
+wget http://packages.ros.org/ros2/ubuntu/pool/main/r/ros-humble-diagnostic-updater/ros-humble-diagnostic-updater_<version>.deb
+sudo dpkg -i ros-humble-diagnostic-updater_<version>.deb
+```
+
+4. Limpia tu sistema para prevenir problemas relacionados con la memoria cache
+
+```bash
+sudo apt-get clean
+sudo apt-get update
+sudo apt-get install ros-${ROS_DISTRO}-diagnostic-updater
+```
+
+Después de la adición del paquete a un espacio de trabajo de ROS2, reemplaza la dirección IP pre-definida `192.168.1.164` por la de la computadora con el sistema de VICON a los siguientes dos archivos dentro del paquete:
+
+- `all_segments.launch.py` dentro de la carpeta `launch` del paquete `ros2-vicon-bridge`.
+- `vicon_bridge.hpp` dentro de la carpeta `include/vicon_bridge` del mismo paquete.
+
+Mantén el puerto de comunicación `801` el mismo.
+
+Con esto hecho, realiza las instrucciones del repositorio del paquete para realizar pruebas de conexión a ROS2 dentro del Laboratorio de Sistemas Multirobóticos, viendo por ejemplo los tópicos disponibles que emite VICON sobre los Puzzlebots con ROS2 en sus Jetson Nano en la red `Lab_Robotica`. Recuerda que los Puzzlebots deben estar conectados esta misma red para que esto funcione.
+
+Para el nuevo Puzzlebot, sigue las siguientes instrucciones para que VICON lo reconozca y te de estimaciones de su pose:
+
+1. Agrega una nueva constelación de marcadores VICON para la captura de movimiento encima de este. Asegúrate de que la nueva constelación de marcadores no sea similar a las de otros Puzzlebots.
+
+2. Después, agrega un marcador temporal encima de la Jetson Nano del Puzzlebot, a 1 centímetro de distancia del origen del marco de coordenadas del robot. Esto es un paso clave para el funcionamiento del Puzzlebot y su localización en el mundo real. 
+
+3. Luego, vuelve a la computadora con el software de VICON abierto para ubicar el centro del marco de coordenadas hacia arriba en el marcador temporal y selecciona todos los demás marcadores para crear el objeto del nuevo Puzzlebot.
+
+4. Agregále un nuevo nombre como: `puzzlebot4` o `puzzlebot12`.
+
+Con esto hecho, tu Puzzlebot ha sido agregado exitosamente en VICON y el programa en MATLAB para el círculo gradiente funcionará.
+
+### 2. Uso de programa CircleGradient en MATLAB
+
+El programa en **MATLAB** `CircleGradient` controla **Puzzlebots** con **ROS2** para que sigan una trayectoria circular definida por un campo vectorial, utilizando:
+
+- **VICON** para tracking y publicación de pose de Puzzlebot 
+- **MATLAB** envía velocidades requeridas para Puzzlebot.
+- **ROS2 / micro-ROS** para la comunicación y control con los motores.
+- 
+
+El flujo general del programa es así:
+
+1. **Inicialización (init.m)**
+- Crea un **nodo ROS 2 (/msrl_node)**.
+- Configura:
+    - Suscriptor VICON (/vicon/puzzlebotX/pose → geometry_msgs/TransformStamped).
+    - Publicadores de velocidad (/puzzlebotX/VelocitySetL/R → std_msgs/Float32).
+2. **Configuración del Entorno (start_arena.m)**
+- Dibuja el campo vectorial que guía al robot hacia un círculo de radio R.
+- Mueve los robots a sus posiciones iniciales **(go_to_ic.m)**.
+3. **Bucle Principal (MSRL_sim_circle_ros2.m)**
+- Obtiene la pose actual **(get_pose.m)** desde VICON.
+- Calcula velocidades de ruedas usando:
+    - Matriz cinemática inversa (relaciona velocidades del robot con las de las ruedas).
+    - Ley de control basada en gradiente (empuja al robot hacia el círculo deseado).
+- Envía comandos a los motores **(step.m)** mediante ROS 2.
+4. **Parada y Limpieza**
+- Detiene los robots **(stop.m)**.
+- Cierra el nodo ROS 2.
+
+### 3. Uso conjunto de VICON, MATLAB, ROS2 y micro-ROS
+
+Para el uso del Puzzlebot en este experimento:
+
+1. Coloca el **Puzzlebot** en cualquier sitio dentro de la arena en el **Laboratorio de Sistemas Multirobóticos**.
+2. Enciende la fuente de alimentación para el Puzzlebot y asegúrate de tener los **switches activados** para la **Hackerboard** y los **motores**.
+3. Espera hasta que el **nodo de micro-ROS** del Puzzlebot sea activado por el servicio ejecutador del launch file responsable de correrlo. Esto puedes confirmarlo con el uso de comandos como `ros2 node list` y `ros2 topic list`.
+4. Ve a la computadora con el sistema **VICON** y asegúrate de que el Puzzlebot sea reconocido con su **constelación de marcadores VICON**.
+5. Ve a la computadora con **sistema operativo Ubuntu 22.04 y ROS2 Humble Hawksbill** y abre una ventana de terminal.
+6. Ejecuta los siguientes comandos: 
+```bash 
+ros2 run vicon_bridge vicon_bridge
+matlab softwareopengl
+ros2 topic list
+ros2 node list
+rqt_graph
+```
+7. Estos comandos ejecutan el puente de VICON a ROS2, corren el software de MATLAB y muestran los nodos y tópicos disponibles. La información desplegada de permitirá determinar si el flujo del programa está completo.
+8. Finalmente, escribe las condiciones iniciales y el número de Puzzlebots que desees utilizar para el experimento y corre el programa `MSRL_sim_circle_ros2`.

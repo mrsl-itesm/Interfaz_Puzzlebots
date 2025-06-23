@@ -1,0 +1,9 @@
+Copy the following link into a browser to download the image
+
+https://tinyurl.com/jetson2gbimage
+
+If it does not work use the following:
+
+https://manchesterrobotics-my.sharepoint.com/my?id=%2Fpersonal%2Fmario%5Fmtz%5Fmanchester%2Drobotics%5Fcom%2FDocuments%2FManchester%20Robotics%2FTeaching%20and%20learning%2FCourses%2FCADI%20ROS2%2FCADI%20%2D%20Invierno%2FActivities%2Fjetson%5F2gb%5Fubuntu20%2Ezip&parent=%2Fpersonal%2Fmario%5Fmtz%5Fmanchester%2Drobotics%5Fcom%2FDocuments%2FManchester%20Robotics%2FTeaching%20and%20learning%2FCourses%2FCADI%20ROS2%2FCADI%20%2D%20Invierno%2FActivities&ga=1
+
+

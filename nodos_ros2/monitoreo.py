@@ -55,8 +55,10 @@ class MonitoreoWebSocketBridge(Node):
     
     # Logs a message and returns a lambda that updates the last_ros_message timestamp for the Puzzlebot when a message is received
     def create_ros_callback(self, robot):
-        self.get_logger().info("Mensage de ROS recibido.")
-        return lambda msg : setattr(robot, "last_ros_message", self.get_clock().now())
+        return lambda msg : (
+            setattr(robot, "last_ros_message", self.get_clock().now()),
+            self.get_logger().info("Mensage de ROS recibido.")
+        )
     
     # Similar lambda for updating the Vicon message timestamp
     def create_vicon_callback(self, robot):
@@ -105,7 +107,7 @@ class MonitoreoWebSocketBridge(Node):
                             for r in self.puzzlebots
                         ]
                         await ws.send(json.dumps(data)) # Sends the data as a JSON message over WebSocket
-                        self.get_logger().info(f"Daros enviados: {data}") # Logs the sent data
+                        self.get_logger().info(f"Datos enviados: {data}") # Logs the sent data
                         await asyncio.sleep(2) # Waits 2 seconds before repeating
             # Handles dropped WebSocket connection: Logs it, waits 1 second, retries.
             except (websockets.exceptions.ConnectionClosed, OSError, asyncio.TimeoutError) as e:
