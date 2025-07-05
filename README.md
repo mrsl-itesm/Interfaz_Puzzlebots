@@ -246,3 +246,5 @@ El *micro_ros_agent* de cada Puzzlebot es un agente que se encarga de establecer
 Para evitar confusiones en la visualización de los flujos de comunicación de cada Puzzlebot con el sistema VICON y el código en MATLAB, estamos trabajando con los desarrolladores de Manchester Robotics Ltd. para que el nombre del nodo *puzzlebot_serial_node* sea una variable cuyo nombre pueda cambiarse y visualizarse con claridad y diferencia en herramientas como rqt_graph.
 
 ![Circle Gradient Graph](images/circleGradient.png)
+
+<iframe src="https://drive.google.com/file/d/1Nj-LX1kKAyhdQDGv3B8w3NR5hBn0K0Qn/view?usp=sharing" width="640" height="480" frameborder="0" allowfullscreen></frame>
