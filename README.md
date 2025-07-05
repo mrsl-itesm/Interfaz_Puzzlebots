@@ -247,4 +247,4 @@ Para evitar confusiones en la visualización de los flujos de comunicación de c
 
 ![Circle Gradient Graph](images/circleGradient.png)
 
-![Circle Gradient Puzzlebot Demo Video](https://drive.google.com/file/d/1Nj-LX1kKAyhdQDGv3B8w3NR5hBn0K0Qn/view?usp=sharing)
+[Circle Gradient Puzzlebot Demo Video](https://drive.google.com/file/d/1Nj-LX1kKAyhdQDGv3B8w3NR5hBn0K0Qn/view?usp=sharing)
