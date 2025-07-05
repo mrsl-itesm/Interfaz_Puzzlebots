@@ -105,6 +105,24 @@ sudo systemctl status micro_ros_agent.service
 ros2 topic list
 ```
 
+## 3. Renombramiento de tópicos de Puzzlebot
+
+Para que cada Puzzlebot sea distinguido entre sí, es necesario realizar el siguiente paso de renombramiento de sus tópicos. Para hacer esto, se modifican las configuraciones individuales de las Hackerboard de cada Puzzlebot.
+
+1. Primero, se debe conectar a la red Wi-Fi SSID de un Puzzlebot. Selecciona la red e ingresa la contraseña mostrada por el display OLED de la Hackerboard del robot.
+
+2. Ingresa al navegador del dispositivo conectado al Puzzlebot insertando la dirección (http://192.168.1.1).
+
+![Puzzlebot Parameter Interface](images/puzzlebotInterface.png)
+
+3. Haz click en "Change Configuration" para ver el archivo de configuración de la Hackerboard.
+
+4. Analiza los tópicos que se usan para las capacidades de ROS2 del Puzzlebot en cuestión.
+
+5. Agrega a los tópicos el siguiente prefijo: (puzzlebot#/). En este caso, el caracter # representa un número único del Puzzlebot. De este modo, los tópicos deben tener el siguiente formato de nombre de ejemplo: (puzzlebot1/cmd_vel, puzzlebot1/robot_vel, puzzlebot1/VelocityEncR, puzzlebot1/VelocityEncL, puzzlebot1/VelocitySetR, puzzlebot1/VelocitySetR).
+
+![Puzzlebot Parameter Topic Renaming](images/topicRenaming.png)
+
 # 3. Pasos para usar un nuevo Puzzlebot con ROS2 Humble
 
 ---
@@ -217,5 +235,14 @@ ros2 topic list
 ros2 node list
 rqt_graph
 ```
+
+![ROS2 RQT Graph of Circle Gradient Experiment](images/circleGradientRqtGraph.png)
+
 7. Estos comandos ejecutan el puente de VICON a ROS2, corren el software de MATLAB y muestran los nodos y tópicos disponibles. La información desplegada de permitirá determinar si el flujo del programa está completo.
 8. Finalmente, escribe las condiciones iniciales y el número de Puzzlebots que desees utilizar para el experimento y corre el programa `MSRL_sim_circle_ros2`.
+
+El *micro_ros_agent* de cada Puzzlebot es un agente que se encarga de establecer la comunicación y configurar nodos en microcontroladores, no un nodo como tal. El nodo se genera dentro del microcontrolador con el nombre *puzzlebot_serial_node*. Ya que el agente gestiona la comunicación a veces no lo muestra, pero ya que la comunicación se hace por tópicos al agente no importan los nombres de los nodos, solo los nombres de los tópicos.
+
+Para evitar confusiones en la visualización de los flujos de comunicación de cada Puzzlebot con el sistema VICON y el código en MATLAB, estamos trabajando con los desarrolladores de Manchester Robotics Ltd. para que el nombre del nodo *puzzlebot_serial_node* sea una variable cuyo nombre pueda cambiarse y visualizarse con claridad y diferencia en herramientas como rqt_graph.
+
+![Circle Gradient Graph](images/circleGradient.png)
