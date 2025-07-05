@@ -1,4 +1,4 @@
-# 2. Pasos para configurar un nuevo Puzzlebot
+# 1. Pasos para configurar un nuevo Puzzlebot
 
 ---
 
@@ -123,7 +123,7 @@ Para que cada Puzzlebot sea distinguido entre sí, es necesario realizar el sigu
 
 ![Puzzlebot Parameter Topic Renaming](images/topicRenaming.png)
 
-# 3. Pasos para usar un nuevo Puzzlebot con ROS2 Humble
+# 2. Pasos para usar un nuevo Puzzlebot con ROS2 Humble
 
 ---
 
