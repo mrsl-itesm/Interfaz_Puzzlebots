@@ -247,4 +247,4 @@ Para evitar confusiones en la visualización de los flujos de comunicación de c
 
 ![Circle Gradient Graph](images/circleGradient.png)
 
-<iframe src="https://drive.google.com/file/d/1Nj-LX1kKAyhdQDGv3B8w3NR5hBn0K0Qn/view?usp=sharing" width="640" height="480" frameborder="0" allowfullscreen></frame>
+<iframe src="https://drive.google.com/file/d/1Nj-LX1kKAyhdQDGv3B8w3NR5hBn0K0Qn/preview" width="640" height="480" frameborder="0" allowfullscreen autoplay></iframe>
